@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">VerificationTask</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="param_a">Parameter A</string>
+    <string name="param_b">Parameter B</string>
+    <string name="param_c">Parameter C</string>
+    <string name="url_param">URL</string>
+</resources>
