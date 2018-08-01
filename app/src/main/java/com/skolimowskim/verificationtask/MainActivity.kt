@@ -57,7 +57,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onStopClicked() {
+        stopBackgroundTasks()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopBackgroundTasks()
+    }
+
+    private fun stopBackgroundTasks() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        batteryLevelHandler.removeCallbacks(getBatteryLevelRunnable)
     }
 
     @SuppressLint("MissingPermission") // app is only to show working on multiple task so I assume user manually granted permissions
