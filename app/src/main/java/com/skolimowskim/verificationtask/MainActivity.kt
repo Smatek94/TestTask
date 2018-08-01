@@ -1,7 +1,11 @@
 package com.skolimowskim.verificationtask
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import com.google.android.gms.location.*
 import com.skolimowskim.verificationtask.utils.LogUtils
@@ -12,6 +16,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+
+    private val batteryLevelHandler = Handler()
+    private val getBatteryLevelRunnable = Runnable {
+        val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            this@MainActivity.registerReceiver(null, ifilter)
+        }
+        batteryStatus?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            LogUtils.log("Current level : $level")
+        }
+        startBatteryUpdates(batteryUpdateInterval)
+    }
+    private var batteryUpdateInterval: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +48,12 @@ class MainActivity : AppCompatActivity() {
         val cParam = param_c_input.text.toString().toInt()
 
         startLocalizationUpdates(aParam)
+        startBatteryUpdates(bParam * 1000)
+    }
+
+    private fun startBatteryUpdates(batteryUpdateInterval: Int) {
+        this.batteryUpdateInterval = batteryUpdateInterval
+        batteryLevelHandler.postDelayed(getBatteryLevelRunnable, this.batteryUpdateInterval.toLong())
     }
 
     private fun onStopClicked() {
