@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         startLocalizationUpdates(aParam)
         startBatteryUpdates(bParam * 1000)
+        QueueService.initService(this, cParam)
     }
 
     private fun startBatteryUpdates(batteryUpdateInterval: Int) {
@@ -81,7 +82,8 @@ class MainActivity : AppCompatActivity() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
-                LogUtils.log("Current location : " + locationResult.lastLocation)
+                QueueService.addItemToList(this@MainActivity, locationResult.lastLocation.toString())
+//                LogUtils.log("Current location : " + locationResult.lastLocation)
             }
         }
 

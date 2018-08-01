@@ -1,33 +1,51 @@
 package com.skolimowskim.verificationtask
 
 import android.app.IntentService
-import android.content.Intent
 import android.content.Context
+import android.content.Intent
 
 class QueueService : IntentService("QueueService") {
 
-    val itemsList: ArrayList<String> = ArrayList()
+    private val queue: ArrayList<String> = ArrayList()
+    private var queueSize: Int = 0
 
     override fun onHandleIntent(intent: Intent?) {
-        val item = intent?.getStringExtra("QUEUE_ITEM")
-        item?.let { itemsList.add(it) }
+        when (intent?.action) {
+            ACTION_INIT -> {
+                queueSize = intent.getIntExtra(ARG_QUEUE_SIZE, 1)
+            }
+            ACTION_ADD -> {
+                val item = intent.getStringExtra("QUEUE_ITEM")
+                item?.let { queue.add(it) }
+                if(queue.size > queueSize){
+                    flush()
+                }
+            }
+        }
+    }
+
+    private fun flush() {
+
     }
 
     companion object {
-        fun startActionFoo(context: Context, param1: String, param2: String) {
+        private const val ACTION_INIT: String = "action_init"
+        private const val ACTION_ADD: String = "action_add"
+        private const val ARG_QUEUE_SIZE: String = "queue_size_arg"
+        private const val ARG_QUEUE_ITEM: String = "queue_item_arg"
+
+        fun initService(context: Context, queueSize: Int) {
             val intent = Intent(context, QueueService::class.java).apply {
-                action = ACTION_FOO
-                putExtra(EXTRA_PARAM1, param1)
-                putExtra(EXTRA_PARAM2, param2)
+                action = ACTION_INIT
+                putExtra(ARG_QUEUE_SIZE, queueSize)
             }
             context.startService(intent)
         }
 
-        fun startActionBaz(context: Context, param1: String, param2: String) {
+        fun addItemToList(context: Context, item: String) {
             val intent = Intent(context, QueueService::class.java).apply {
-                action = ACTION_BAZ
-                putExtra(EXTRA_PARAM1, param1)
-                putExtra(EXTRA_PARAM2, param2)
+                action = ACTION_ADD
+                putExtra(ARG_QUEUE_ITEM, item)
             }
             context.startService(intent)
         }
