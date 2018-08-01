@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         batteryStatus?.let { intent ->
             val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
             LogUtils.log("Current level : $level")
+            QueueService.addItemToList(this@MainActivity, level.toString())
         }
         startBatteryUpdates(batteryUpdateInterval)
     }
@@ -37,19 +38,21 @@ class MainActivity : AppCompatActivity() {
         button_start.setOnClickListener { onStartClicked() }
         button_stop.setOnClickListener { onStopClicked() }
 
-        param_a_input.setText("10")
-        param_b_input.setText("10")
-        param_c_input.setText("10")
+        param_a_input.setText("2")
+        param_b_input.setText("2")
+        param_c_input.setText("5")
+        url_input.setText("https://www.google.com")
     }
 
     private fun onStartClicked() {
         val aParam = param_a_input.text.toString().toInt()
         val bParam = param_b_input.text.toString().toInt()
         val cParam = param_c_input.text.toString().toInt()
+        val url = url_input.text.toString()
 
         startLocalizationUpdates(aParam)
         startBatteryUpdates(bParam * 1000)
-        QueueService.initService(this, cParam)
+        QueueService.initService(this, cParam, url)
     }
 
     private fun startBatteryUpdates(batteryUpdateInterval: Int) {
@@ -81,9 +84,9 @@ class MainActivity : AppCompatActivity() {
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
+                if(locationResult == null) return
                 QueueService.addItemToList(this@MainActivity, locationResult.lastLocation.toString())
-//                LogUtils.log("Current location : " + locationResult.lastLocation)
+                LogUtils.log("Current location : " + locationResult.lastLocation)
             }
         }
 
